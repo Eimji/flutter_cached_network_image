@@ -34,12 +34,13 @@ class CachedNetworkImage extends StatefulWidget {
     this.placeholder,
     @required this.imageUrl,
     this.errorWidget,
-    this.fadeOutDuration: const Duration(milliseconds: 300),
+    this.fadeOutDuration: const Duration(milliseconds: 100),
     this.fadeOutCurve: Curves.easeOut,
-    this.fadeInDuration: const Duration(milliseconds: 700),
+    this.fadeInDuration: const Duration(milliseconds: 300),
     this.fadeInCurve: Curves.easeIn,
     this.width,
     this.height,
+    this.deviceRatio,
     this.fit,
     this.alignment: Alignment.center,
     this.repeat: ImageRepeat.noRepeat,
@@ -91,6 +92,8 @@ class CachedNetworkImage extends StatefulWidget {
   /// placeholder widget does not match that of the target image. The size is
   /// also affected by the scale factor.
   final double height;
+
+  final double deviceRatio;
 
   /// How to inscribe the image into the space allocated during layout.
   ///
@@ -228,6 +231,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void initState() {
     _hasError = false;
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
+        width: widget.height == null ? (widget.deviceRatio != null ? widget.width * widget.deviceRatio : widget.width) : null,
         headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
     _imageResolver =
         new _ImageProviderResolver(state: this, listener: _updatePhase);
@@ -268,7 +272,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (widget.imageUrl != oldWidget.imageUrl ||
         widget.placeholder != widget.placeholder) {
       _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-          errorListener: _imageLoadingFailed);
+          width: widget.height == null ? widget.width : null, errorListener: _imageLoadingFailed);
 
       _resolveImage();
     }
@@ -434,7 +438,7 @@ class CachedNetworkImageProvider
   /// Creates an ImageProvider which loads an image from the [url], using the [scale].
   /// When the image fails to load [errorListener] is called.
   const CachedNetworkImageProvider(this.url,
-      {this.scale: 1.0, this.errorListener, this.headers})
+      {this.scale: 1.0, this.width, this.height, this.errorListener, this.headers})
       : assert(url != null),
         assert(scale != null);
 
@@ -443,6 +447,9 @@ class CachedNetworkImageProvider
 
   /// Scale of the image
   final double scale;
+
+  final double width;
+  final double height;
 
   /// Listener to be called when images fails to load.
   final ErrorListener errorListener;
@@ -469,7 +476,7 @@ class CachedNetworkImageProvider
 
   Future<ui.Codec> _loadAsync(CachedNetworkImageProvider key) async {
     var cacheManager = await CacheManager.getInstance();
-    var file = await cacheManager.getFile(url, headers: headers);
+    var file = await cacheManager.getFile(url, width: width, headers: headers);
     if (file == null) {
       if (errorListener != null) errorListener();
       throw new Exception("Couldn't download or retreive file.");
