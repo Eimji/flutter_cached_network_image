@@ -231,7 +231,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
   void initState() {
     _hasError = false;
     _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-        width: widget.height == null ? (widget.deviceRatio != null ? widget.width * widget.deviceRatio : widget.width) : null,
+        width: widget.deviceRatio != null && widget.width != null ? widget.deviceRatio * widget.width : null,
         headers: widget.httpHeaders, errorListener: _imageLoadingFailed);
     _imageResolver =
         new _ImageProviderResolver(state: this, listener: _updatePhase);
@@ -272,7 +272,8 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (widget.imageUrl != oldWidget.imageUrl ||
         widget.placeholder != widget.placeholder) {
       _imageProvider = new CachedNetworkImageProvider(widget.imageUrl,
-          width: widget.height == null ? widget.width : null, errorListener: _imageLoadingFailed);
+          width: widget.deviceRatio != null && widget.width != null ? widget.deviceRatio * widget.width : null, 
+          errorListener: _imageLoadingFailed);
 
       _resolveImage();
     }
