@@ -330,15 +330,12 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           if (_controller.status == AnimationStatus.completed) {
             // Done finding in new image.
             _phase = ImagePhase.completed;
-            if (widget.onImageCompleted != null) {
-              widget.onImageCompleted(true);
-            }
           }
           break;
         case ImagePhase.completed:
           // Nothing to do.
-          if (_hasError && widget.onImageCompleted != null) {
-            widget.onImageCompleted(false);
+          if (widget.onImageCompleted != null) {
+            widget.onImageCompleted(!_hasError);
           }  
           break;
       }
