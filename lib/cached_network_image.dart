@@ -408,10 +408,6 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
     if (_hasError && widget.errorWidget != null) {
       return _fadedWidget(widget.errorWidget);
     }
-
-    if (widget.onImageCompleted != null) {
-      widget.onImageCompleted(!_hasError);
-    } 
           
     final ImageInfo imageInfo = _imageResolver._imageInfo;
     return new RawImage(
