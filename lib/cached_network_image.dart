@@ -17,6 +17,8 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
  *  Released under MIT License.
  */
 
+typedef void ImgeCompletedHandler(bool success);
+
 class CachedNetworkImage extends StatefulWidget {
   static List<Object> _registeredErrors = <Object>[];
 
@@ -34,6 +36,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.placeholder,
     @required this.imageUrl,
     this.errorWidget,
+    this.onImageCompleted,
     this.fadeOutDuration: const Duration(milliseconds: 100),
     this.fadeOutCurve: Curves.easeOut,
     this.fadeInDuration: const Duration(milliseconds: 300),
@@ -64,6 +67,9 @@ class CachedNetworkImage extends StatefulWidget {
 
   /// Widget displayed while the target [imageUrl] failed loading.
   final Widget errorWidget;
+
+  // Callback function on image completed
+  final ImgeCompletedHandler onImageCompleted;
 
   /// The duration of the fade-out animation for the [placeholder].
   final Duration fadeOutDuration;
@@ -303,7 +309,7 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           break;
         case ImagePhase.waiting:
           if (_hasError && widget.errorWidget == null) {
-            _phase = ImagePhase.completed;
+            _phase = ImagePhase.completed;       
             return;
           }
 
@@ -324,10 +330,16 @@ class _CachedNetworkImageState extends State<CachedNetworkImage>
           if (_controller.status == AnimationStatus.completed) {
             // Done finding in new image.
             _phase = ImagePhase.completed;
+            if (widget.onImageCompleted != null) {
+              widget.onImageCompleted(true);
+            }
           }
           break;
         case ImagePhase.completed:
           // Nothing to do.
+          if (_hasError && widget.onImageCompleted != null) {
+            widget.onImageCompleted(false);
+          }  
           break;
       }
     });
