@@ -481,7 +481,7 @@ class CachedNetworkImageProvider
     var file = await cacheManager.getFile(url, width: width, headers: headers);
     if (file == null) {
       if (errorListener != null) errorListener();
-      throw new Exception("Couldn't download or retreive file.");
+      return Future<ui.Codec>.error("Couldn't download or retreive file.");
     }
     return await _loadAsyncFromFile(key, file);
   }
