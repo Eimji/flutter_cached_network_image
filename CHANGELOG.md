@@ -1,3 +1,23 @@
+## [0.7.0] - 2019-03-06
+* BREAKING CHANGE: Renamed ErrorWidgetBuilder to LoadingErrorWidgetBuilder
+* LoadingErrorWidgetBuilder returns an Object instead of an Exception
+* Fixed BoxFit to also work when size is not defined
+
+## [0.6.2] - 2019-02-27
+* Added option to blend image with color
+* Added option in CacheManager to clear the cache
+
+## [0.6.1] - 2019-02-25 BREAKING CHANGES
+* No longer assume infinite size.
+
+## [0.6.0] - 2019-02-18 BREAKING CHANGES
+* Breaking changes in API and behaviour
+* Very much improved though
+* Adapted for new cache manager library
+* Completely rewritten image view
+* Now using builders for placeholder and error widgets
+* Added optional builder to customize the image
+
 ## [0.5.1] - 2018-11-19
 * Fixed error throwing
 
