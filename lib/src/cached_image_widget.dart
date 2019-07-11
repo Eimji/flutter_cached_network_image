@@ -27,6 +27,9 @@ class CachedNetworkImage extends StatefulWidget {
   /// Widget displayed while the target [imageUrl] failed loading.
   final LoadingErrorWidgetBuilder errorWidget;
 
+  /// The duration of the fade-in animation for the [placeholder].
+  final Duration placeholderFadeInDuration;
+
   /// The duration of the fade-out animation for the [placeholder].
   final Duration fadeOutDuration;
 
@@ -149,6 +152,7 @@ class CachedNetworkImage extends StatefulWidget {
     this.useOldImageOnUrlChange: false,
     this.color,
     this.colorBlendMode,
+    this.placeholderFadeInDuration,
   })  : assert(imageUrl != null),
         assert(fadeOutDuration != null),
         assert(fadeOutCurve != null),
@@ -239,6 +243,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
         }
         lastHolder.animationController.reverse().then((_) {
           _imageHolders.remove(lastHolder);
+          if (mounted) setState(() {});
           return null;
         });
       });
@@ -277,7 +282,9 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
           if (fileInfo == null) {
             // placeholder
             if (_imageHolders.length == 0 || _imageHolders.last.image != null) {
-              _addImage(image: null, duration: Duration(milliseconds: 500));
+              _addImage(
+                  image: null,
+                  duration: widget.placeholderFadeInDuration ?? Duration.zero);
             }
           } else if (_imageHolders.length == 0 ||
               _imageHolders.last.image?.originalUrl != fileInfo.originalUrl ||
@@ -309,7 +316,7 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
         return Stack(
           fit: StackFit.passthrough,
           alignment: widget.alignment,
-          children: children.reversed.toList(),
+          children: children.toList(),
         );
       },
     );
