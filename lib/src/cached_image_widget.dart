@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-Map<String, FileInfo> _fileCache = new Map<String, FileInfo>();
-
 typedef Widget ImageWidgetBuilder(
     BuildContext context, ImageProvider imageProvider);
 typedef Widget PlaceholderWidgetBuilder(BuildContext context, String url);
@@ -261,15 +259,21 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
     );
   }
 
+  FileInfo _getFromMemory(){
+    return _cacheManager().getFileFromMemory(widget.imageUrl);
+  }
+
   _animatedWidget() {
+    var fromMemory = _getFromMemory();
+
     return StreamBuilder<FileInfo>(
       key: _streamBuilderKey,
-      initialData: _fileCache[widget.imageUrl],
+      initialData: fromMemory,
       stream: _cacheManager()
           .getFile(widget.imageUrl, width: widget.deviceRatio != null && widget.width != null ? widget.deviceRatio * widget.width : null, headers: widget.httpHeaders)
           .where((f) =>
-              f?.originalUrl != _fileCache[widget.imageUrl]?.originalUrl ||
-              f?.validTill != _fileCache[widget.imageUrl]?.validTill),
+              f?.originalUrl != fromMemory?.originalUrl ||
+              f?.validTill != fromMemory?.validTill),
       builder: (BuildContext context, AsyncSnapshot<FileInfo> snapshot) {
         if (snapshot.hasError) {
           // error
@@ -277,7 +281,6 @@ class CachedNetworkImageState extends State<CachedNetworkImage>
             _addImage(image: null, error: snapshot.error);
           }
         } else {
-          _fileCache[widget.imageUrl] = snapshot.data;
           var fileInfo = snapshot.data;
           if (fileInfo == null) {
             // placeholder
